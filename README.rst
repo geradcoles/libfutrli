@@ -1,7 +1,8 @@
 py-futrli
 =========
 
-A library for interacting with with Futrli web suite for business forecasting and reporting.
+A Python 3 library for interacting with with Futrli web suite for business
+forecasting and reporting.
 
 The impetus for this library was to add support for automating the uploading of
 non-financial data to an organization in Futrli. As far as is known by the author, Futrli
