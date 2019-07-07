@@ -33,10 +33,14 @@ class FutrliClient(object):
         Required kwargs:
         - email
         - password
+
+        Optional kwargs:
+        - organisation_id: an id for the org to work on
         """
         self.log = logging.getLogger(self.__class__.__name__)
         self._email = kwargs.get('email')
         self._pass = kwargs.get('password')
+        self.organisation_id = kwargs.get('organisation_id', None)
         self.__connection_pool = None
         self._auth_token = None
 
@@ -58,12 +62,16 @@ class FutrliClient(object):
         return self._request('GET', endpoint, **urlopen_kw)['organisations']
 
     def upload_financial_data(
-            self, filename, org_id, action='REPLACE', **urlopen_kw):
+            self, filename, org_id=None, action='REPLACE', **urlopen_kw):
         """Upload financial data to the organization identified by org_id.
-        Data will be encoded by this method, pass CSV data directly.
-        `filename` parameter refers to a full path to a file to upload as
+
+        Data will be encoded by this method, do not encode CSV data.
+        The ``filename`` parameter refers to a full path to a file to upload as
         financial data to futrli. This name is uploaded to Futrli as part of
         the PUT request.
+
+        ``org_id`` is the organisation that will be uploaded to. If omitted,
+        it will be looked up in class configuration.
 
         `action` refers to what to do when the data being uploaded corresponds
         to the same date, parent, and child as existing data. Valid options
@@ -76,7 +84,14 @@ class FutrliClient(object):
         with open(filename) as fhndl:
             data = fhndl.read()
         urlopen_kw['body'] = data
-        params = {'organisation_id': org_id}
+        params = dict()
+        if org_id is None:
+            if self.organisation_id:
+                params['organisation_id'] = self.organisation_id
+            else:
+                raise RuntimeError("No organisation ID provided in config")
+        else:
+            params['organisation_id'] = org_id
         urlopen_kw['headers'] = urlopen_kw.get('headers', {})
         urlopen_kw['headers']['Content-Type'] = 'text/csv'
         # Test the data

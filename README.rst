@@ -22,6 +22,7 @@ First, we need to get a ``FutrliClient``::
 If you don't want to supply credentials directly in code, you can use the
 configuration system::
 
+    from libfutrli.configuration import get_configuration
     configuration = get_configuration()
     client = libfutrli.FutrliClient(**configuration)
 
