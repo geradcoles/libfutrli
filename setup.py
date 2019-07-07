@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='libfutrli',
-    version="0.2",
+    version="0.3",
     description='Python3 library for uploading non-financial data to Futrli',
     long_description=readme(),
     author='Prairie Dog Brewing CANADA Inc',
