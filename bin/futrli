@@ -35,7 +35,7 @@ keys:
 Use the --config switch to specify a configuration file location, or simply
 use the default location, ~/.futrli
 
-NOTE: You can use `futrli org list to find your organization ID (it isn't
+NOTE: You can use `futrli org list` to find your organization ID (it isn't
       required for that command).
 """
 import sys
@@ -78,6 +78,7 @@ def run(**kwargs):
             print(
                 "Only 'list' operations are supported for organizations",
                 file=sys.stderr)
+            return 1
     elif kwargs.get('nfd', False):
         if kwargs.get('upload', False):
             action = "REPLACE"
@@ -89,6 +90,7 @@ def run(**kwargs):
                 args.get('<csvfile>'),
                 configuration.get('organisation_id'),
                 action)
+    return 0
 
 
 if __name__ == '__main__':
