@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+"""Upload non-financial data to Futrli
+
+Usage:
+  futrli nfd upload [options] <csvfile>
+  futrli org list [options]
+
+Options:
+  -h --help         Show this screen
+  -v --version      Show version information
+  -d --debug        Enable debug logging (low-level)
+  -c --config=FOO   Path to optional configuration file [default: ~/.futrli]
+  -e --email=FOO    The email address of the Futrli user (if not in config)
+  -p --pass=FOO     The password for the Futrli user (if not in config)
+  -o --org-id=FOO   Organisation ID to upload to (if not in config)
+
+Non-Financial Data Upload Options:
+  --add             Add data, even if duplicated Date, Parent, Child
+  --ignore          Ignore/skip new data that matches existing fields
+
+If neither of the above options are used, the 'replace' action will be
+used by default.
+
+Configuration File
+------------------
+Futrli settings, such as the username, password, and organization ID
+can be stored in a JSON configuration file to avoid having to supply
+them at the command line. The JSON file should have the following top-level
+keys:
+
+- email
+- password
+- organisation_id (UK spelling to match Futrli's own API)
+
+Use the --config switch to specify a configuration file location, or simply
+use the default location, ~/.futrli
+
+NOTE: You can use `futrli org list to find your organization ID (it isn't
+      required for that command).
+"""
+import sys
+import logging
+from docopt import docopt
+import libfutrli
+from libfutrli.configuration import get_configuration
+
+
+def get_merged_configuration(userargs):
+    """Returns a merged configuration based on what is found in the
+    configuration file and what the user specifies at the CLI"""
+    configuration = get_configuration(userargs.get('--config', '~/.futrli'))
+    if userargs.get('--email', None):
+        configuration['username'] = userargs.get('--email')
+    if userargs.get('--pass', None):
+        configuration['password'] = userargs.get('--pass')
+    if userargs.get('--org-id', None):
+        configuration['organisation_id'] = userargs.get('--org-id')
+    return configuration
+
+
+def validate_configuration(config):
+    """Ensures that required configuration parameters are present"""
+    for item in ('email', 'password'):
+        if item not in config:
+            raise RuntimeError("Missing configuration: {}".format(item))
+    return config
+
+
+def run(**kwargs):
+    configuration = validate_configuration(get_merged_configuration(kwargs))
+    client = libfutrli.FutrliClient(**configuration)
+    client.authenticate()
+    if kwargs.get('org', False):
+        if kwargs.get('list', False):
+            for org in client.get_org_list():
+                print("Name: '{}'\tID: '{}'".format(org['name'], org['id']))
+        else:
+            print(
+                "Only 'list' operations are supported for organizations",
+                file=sys.stderr)
+    elif kwargs.get('nfd', False):
+        if kwargs.get('upload', False):
+            action = "REPLACE"
+            if kwargs.get('--add', False):
+                action = 'ADD'
+            elif kwargs.get('--ignore', False):
+                action = 'IGNORE'
+            client.upload_financial_data(
+                args.get('<csvfile>'),
+                configuration.get('organisation_id'),
+                action)
+
+
+if __name__ == '__main__':
+    args = docopt(__doc__, version='futrli 0.1')
+    logging.basicConfig()
+    if args.get('--debug', False):
+        print(args, file=sys.stderr)
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger('lib7shifts').setLevel(logging.INFO)
+    sys.exit(run(**args))

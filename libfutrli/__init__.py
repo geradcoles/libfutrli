@@ -30,9 +30,9 @@ class FutrliClient(object):
 
     def __init__(self, **kwargs):
         """
-        kwargs:
-        - email (required)
-        - password (required)
+        Required kwargs:
+        - email
+        - password
         """
         self.log = logging.getLogger(self.__class__.__name__)
         self._email = kwargs.get('email')
