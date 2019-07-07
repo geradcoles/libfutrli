@@ -20,7 +20,7 @@ First, we need to get a ``FutrliClient``::
         email='some-email@nowhere.com', password='some-password')
 
 If you don't want to supply credentials directly in code, you can use the
-configuration system:
+configuration system::
 
     configuration = get_configuration()
     client = libfutrli.FutrliClient(**configuration)
@@ -60,7 +60,7 @@ may optionally be provided to the command, itself (a different configuration
 file path can be specified with the ``--config`` switch).
 
 Before you can run any non-financial data uploads, you need to get your
-organisation id (UK spelling), which can be done as follows:
+organisation id (UK spelling), which can be done as follows::
 
     futrli org list
 
