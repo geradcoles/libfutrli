@@ -15,6 +15,7 @@ import logging
 
 DEFAULT_FILENAME = '~/.futrli'
 
+
 def get_configuration(filename=None):
     """Returns Futrli configuration as a dictionary.
 
