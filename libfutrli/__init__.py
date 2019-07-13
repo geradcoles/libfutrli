@@ -37,7 +37,8 @@ class FutrliClient(object):
         Optional kwargs:
         - organisation_id: an id for the org to work on
         """
-        self.log = logging.getLogger(self.__class__.__name__)
+        self.log = logging.getLogger("{}.{}".format(
+            self.__class__.__module__, self.__class__.__name__))
         self._email = kwargs.get('email')
         self._pass = kwargs.get('password')
         self.organisation_id = kwargs.get('organisation_id', None)
@@ -98,9 +99,9 @@ class FutrliClient(object):
         endpoint = '/csv/non-financial-data/?' + urlencode(params)
         resp = self._request(
             'PUT', endpoint, **urlopen_kw)
-        self.log.debug(
-            'will add %d new records and found %d existing matches',
-            len(resp['new_accounts']), len(resp['existing_accounts']))
+        self.log.info(
+            'inserting %d new records and handling %d existing with %s action',
+            len(resp['new_accounts']), len(resp['existing_accounts']), action)
         # Now actually accept the upload
         params['name'] = os.path.basename(filename)
         params['action'] = action
